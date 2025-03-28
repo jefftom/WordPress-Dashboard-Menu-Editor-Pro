@@ -1,0 +1,419 @@
+/**
+ * Enhanced Admin Menu Editor CSS
+ */
+
+/* Admin Container */
+.came-admin-wrap {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+.came-admin-container {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin-top: 20px;
+}
+
+/* Admin Header */
+.came-admin-header {
+    padding: 0;
+    border-bottom: 1px solid #ccd0d4;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.came-actions {
+    padding: 10px 15px;
+    border-right: 1px solid #ccd0d4;
+}
+
+.came-actions button {
+    margin-right: 5px;
+}
+
+.came-actions .dashicons {
+    vertical-align: text-bottom;
+    margin-right: 2px;
+}
+
+/* Tabs */
+.came-tabs {
+    display: flex;
+    margin: 0;
+}
+
+.came-tab {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #555;
+    border-right: 1px solid #ccd0d4;
+    background: #f8f9fa;
+    font-weight: 500;
+}
+
+.came-tab:hover {
+    background: #f0f0f1;
+    color: #23282d;
+}
+
+.came-tab.active {
+    background: #fff;
+    color: #0073aa;
+    box-shadow: inset 0 -3px 0 #0073aa;
+}
+
+.came-tab .dashicons {
+    vertical-align: text-bottom;
+    margin-right: 5px;
+}
+
+/* Tab Content */
+.came-admin-body {
+    background: #fff;
+    padding: 0;
+    min-height: 400px;
+}
+
+.came-tab-content {
+    display: none;
+    position: relative;
+}
+
+.came-tab-content.active {
+    display: flex;
+}
+
+/* Menu Structure Tab */
+#came-tab-menu {
+    min-height: 600px;
+}
+
+.came-sidebar {
+    width: 30%;
+    border-right: 1px solid #eee;
+    background: #f8f9fa;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.came-main-content {
+    width: 70%;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.came-sidebar-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.came-sidebar-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.came-sidebar-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #23282d;
+}
+
+.came-instructions-list {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.came-instructions-list li {
+    margin-bottom: 5px;
+}
+
+/* Item Properties */
+#came-item-properties .came-no-selection {
+    font-style: italic;
+    padding: 15px 0;
+    color: #666;
+}
+
+.came-form-group {
+    margin-bottom: 15px;
+}
+
+.came-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.came-form-group input[type="text"] {
+    width: 100%;
+}
+
+.came-form-group .description {
+    margin-top: 5px;
+    color: #666;
+    font-style: italic;
+    font-size: 12px;
+}
+
+.came-form-actions {
+    margin-top: 20px;
+}
+
+.came-item-info {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    border-left: 4px solid #0073aa;
+}
+
+.came-item-info h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #23282d;
+}
+
+.came-item-type-info p {
+    margin: 5px 0;
+}
+
+/* Menu Structure */
+.came-menu-structure {
+    margin-top: 10px;
+}
+
+.came-instructions {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid #0073aa;
+}
+
+.came-menu-tree {
+    min-height: 400px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    border-radius: 3px;
+}
+
+/* Menu Items */
+.came-menu-item {
+    margin-bottom: 5px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.came-menu-item.selected {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.came-menu-item.selected > .came-item-header {
+    background-color: #f0f7fc;
+}
+
+.came-menu-item.came-item-hidden,
+.came-submenu-item.came-item-hidden {
+    opacity: 0.6;
+}
+
+.came-item-header {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+}
+
+.came-item-handle {
+    cursor: move;
+    color: #999;
+    margin-right: 10px;
+}
+
+.came-item-title {
+    flex: 1;
+    font-weight: 500;
+}
+
+.came-item-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.came-item-toggle {
+    cursor: pointer;
+    color: #999;
+    margin-left: 10px;
+}
+
+.came-item-hidden-indicator {
+    display: none;
+    margin-left: 10px;
+    color: #ca4a1f;
+}
+
+.came-item-hidden .came-item-hidden-indicator,
+.came-submenu-item.came-item-hidden .came-item-hidden-indicator {
+    display: inline-block;
+}
+
+/* Submenu */
+.came-submenu-container {
+    padding: 5px 10px 10px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+.came-submenu-list {
+    min-height: 10px;
+    margin-bottom: 0;
+    margin-left: 20px;
+    padding-top: 5px;
+}
+
+.came-submenu-item {
+    margin-bottom: 5px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.came-submenu-item.selected {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    background-color: #f0f7fc;
+}
+
+.came-submenu-item .came-item-title {
+    font-weight: normal;
+}
+
+/* Sortable Placeholder */
+.came-sortable-placeholder {
+    border: 1px dashed #b4b9be;
+    background: #f7fcfe;
+    margin-bottom: 5px;
+    height: 40px;
+    border-radius: 3px;
+}
+
+/* Role Settings Tab */
+#came-tab-roles {
+    padding: 20px;
+}
+
+.came-roles-settings h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.came-roles-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 10px;
+    margin-top: 15px;
+}
+
+.came-role-option {
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.came-role-option label {
+    display: flex;
+    align-items: center;
+}
+
+.came-role-option input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Admin Footer */
+.came-admin-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.came-status-message {
+    padding: 10px 15px;
+    border-radius: 3px;
+    display: none;
+}
+
+.came-status-message.success {
+    background: #f0f8ff;
+    border-left: 4px solid #0073aa;
+    color: #0073aa;
+}
+
+.came-status-message.error {
+    background: #fbeaea;
+    border-left: 4px solid #ca4a1f;
+    color: #ca4a1f;
+}
+
+.came-status-message.info {
+    background: #f7fcfe;
+    border-left: 4px solid #00a0d2;
+    color: #00a0d2;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 782px) {
+    .came-tab-content.active {
+        flex-direction: column;
+    }
+    
+    .came-sidebar, .came-main-content {
+        width: 100%;
+    }
+    
+    .came-sidebar {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .came-admin-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .came-actions {
+        padding: 10px;
+        border-right: none;
+        border-bottom: 1px solid #ccd0d4;
+        text-align: center;
+    }
+    
+    .came-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .came-tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+    }
+}
