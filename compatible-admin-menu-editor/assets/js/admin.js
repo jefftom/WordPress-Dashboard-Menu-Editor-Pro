@@ -1,6 +1,6 @@
 /**
  * Enhanced Admin Menu Editor JavaScript
- * Fixed version for submenu handling
+ * Fixed version with no duplicate submenu items
  */
 
 (function($) {
@@ -26,16 +26,18 @@
             // Check for saved menu first
             if (came_data.saved_menu && came_data.saved_menu.length > 0) {
                 menuData.items = came_data.saved_menu;
-                console.log('Loaded saved menu data');
+                console.log('Loaded saved menu data:', menuData.items);
             } 
             // Fall back to current admin menu structure
             else if (came_data.admin_menu) {
                 menuData.items = came_data.admin_menu;
-                console.log('Loaded default menu structure');
+                console.log('Loaded default menu structure:', menuData.items);
             }
             
-            // Render the menu
-            renderMenuTree();
+            // Render the menu - with a slight delay to ensure all DOM is ready
+            setTimeout(function() {
+                renderMenuTree();
+            }, 100);
         } else {
             console.error('came_data is not defined. Script data not properly localized.');
         }
@@ -81,23 +83,29 @@
             applyItemChanges();
         });
         
-        // Select menu item
+        // Select menu item - use delegation with specific targeting
         $(document).on('click', '.came-menu-item > .came-item-header', function(e) {
-            if (!$(e.target).hasClass('came-item-handle') && !$(e.target).hasClass('came-item-toggle')) {
-                selectMenuItem($(this).closest('.came-menu-item'));
+            // Skip if we clicked on handle or toggle
+            if ($(e.target).hasClass('came-item-handle') || 
+                $(e.target).hasClass('came-item-toggle') ||
+                $(e.target).closest('.came-item-toggle').length > 0) {
+                return;
             }
+            selectMenuItem($(this).closest('.came-menu-item'));
         });
         
-        // Select submenu item
+        // Select submenu item - use delegation
         $(document).on('click', '.came-submenu-item', function(e) {
-            if (!$(e.target).hasClass('came-item-handle')) {
-                selectSubmenuItem($(this));
+            // Skip if we clicked on handle
+            if ($(e.target).hasClass('came-item-handle')) {
+                return;
             }
+            selectSubmenuItem($(this));
         });
         
-        // Toggle submenu visibility
+        // Toggle submenu visibility - use delegation with specific targeting
         $(document).on('click', '.came-item-toggle', function(e) {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent bubbling to parent click handlers
             var $menuItem = $(this).closest('.came-menu-item');
             toggleSubmenu($menuItem);
         });
@@ -122,13 +130,9 @@
             $('.came-submenu-list').sortable({
                 handle: '.came-item-handle',
                 placeholder: 'came-sortable-placeholder',
-                connectWith: '.came-submenu-list',
                 update: function(event, ui) {
-                    // Only process if this is the receiving container
-                    if (this === ui.item.parent()[0]) {
-                        var parentId = $(this).closest('.came-menu-item').data('item-id');
-                        updateSubmenuOrder(parentId);
-                    }
+                    var parentId = $(this).closest('.came-menu-item').data('item-id');
+                    updateSubmenuOrder(parentId);
                 }
             });
         } else {
@@ -137,16 +141,19 @@
     }
 
     /**
-     * Render menu tree
+     * Render menu tree - completely clear and rebuild
      */
     function renderMenuTree() {
         var $menuTree = $('#came-menu-tree');
         $menuTree.empty();
         
-        if (menuData.items.length === 0) {
+        if (!menuData.items || menuData.items.length === 0) {
             $menuTree.html('<div class="notice notice-info" style="margin: 20px 0;"><p>No menu items available or menu data could not be loaded.</p></div>');
             return;
         }
+        
+        // Debug check - look for duplicates before rendering
+        checkForDuplicateItems();
         
         // Render each menu item
         $.each(menuData.items, function(index, item) {
@@ -155,6 +162,39 @@
         
         // Initialize sortable for new items
         initSortable();
+        
+        console.log('Menu tree rendered');
+    }
+    
+    /**
+     * Utility to check for duplicate items
+     */
+    function checkForDuplicateItems() {
+        var urlCounts = {};
+        
+        // Check main menu items
+        $.each(menuData.items, function(i, item) {
+            if (!urlCounts[item.url]) {
+                urlCounts[item.url] = 1;
+            } else {
+                console.warn('Duplicate main menu item found for URL:', item.url);
+                urlCounts[item.url]++;
+            }
+            
+            // Also check submenu items
+            if (item.submenu && item.submenu.length) {
+                var submenuUrlCounts = {};
+                
+                $.each(item.submenu, function(j, subitem) {
+                    if (!submenuUrlCounts[subitem.url]) {
+                        submenuUrlCounts[subitem.url] = 1;
+                    } else {
+                        console.warn('Duplicate submenu item found for URL:', subitem.url, 'under parent:', item.url);
+                        submenuUrlCounts[subitem.url]++;
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -180,10 +220,12 @@
         // Append to container
         $container.append($menuItem);
         
+        // Clear any submenu content to prevent duplicates
+        var $submenuList = $menuItem.find('.came-submenu-list');
+        $submenuList.empty();
+        
         // Render submenu items if they exist
         if (item.submenu && item.submenu.length > 0) {
-            var $submenuList = $menuItem.find('.came-submenu-list');
-            
             $.each(item.submenu, function(index, subItem) {
                 renderSubmenuItem($submenuList, subItem);
             });

@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: Enhanced Admin Menu Editor
- * Plugin URI: https://yourwebsite.com/enhanced-admin-menu-editor
- * Description: Customize your WordPress admin menu with improved functionality.
- * Version: 1.0.2
+ * Plugin Name: Fixed Admin Menu Editor
+ * Plugin URI: https://yourwebsite.com/fixed-admin-menu-editor
+ * Description: Customize your WordPress admin menu with fixed submenu handling.
+ * Version: 1.0.3
  * Author: Your Name
  * License: GPL-2.0+
- * Text Domain: enhanced-admin-menu-editor
+ * Text Domain: fixed-admin-menu-editor
  */
 
 // If this file is called directly, abort.
@@ -15,14 +15,14 @@ if (!defined('WPINC')) {
 }
 
 // Define plugin constants
-define('CAME_VERSION', '1.0.2');
+define('CAME_VERSION', '1.0.3');
 define('CAME_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CAME_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * Main plugin class
  */
-class Enhanced_Admin_Menu_Editor {
+class Fixed_Admin_Menu_Editor {
     /**
      * Instance of this class.
      *
@@ -36,6 +36,13 @@ class Enhanced_Admin_Menu_Editor {
      * @var array
      */
     private $menu_settings = array();
+    
+    /**
+     * Flag to prevent duplicate processing
+     * 
+     * @var bool
+     */
+    private $menu_processed = false;
 
     /**
      * Initialize the plugin.
@@ -79,10 +86,10 @@ class Enhanced_Admin_Menu_Editor {
     public function add_admin_menu() {
         add_submenu_page(
             'options-general.php',
-            __('Admin Menu Editor', 'enhanced-admin-menu-editor'),
-            __('Admin Menu Editor', 'enhanced-admin-menu-editor'),
+            __('Admin Menu Editor', 'fixed-admin-menu-editor'),
+            __('Admin Menu Editor', 'fixed-admin-menu-editor'),
             'manage_options',
-            'enhanced-admin-menu-editor',
+            'fixed-admin-menu-editor',
             array($this, 'display_plugin_admin_page')
         );
     }
@@ -94,7 +101,7 @@ class Enhanced_Admin_Menu_Editor {
      * @return array Modified array of plugin action links
      */
     public function add_settings_link($links) {
-        $settings_link = '<a href="' . admin_url('options-general.php?page=enhanced-admin-menu-editor') . '">' . __('Settings', 'enhanced-admin-menu-editor') . '</a>';
+        $settings_link = '<a href="' . admin_url('options-general.php?page=fixed-admin-menu-editor') . '">' . __('Settings', 'fixed-admin-menu-editor') . '</a>';
         array_unshift($links, $settings_link);
         return $links;
     }
@@ -103,7 +110,7 @@ class Enhanced_Admin_Menu_Editor {
      * Enqueue admin scripts and styles
      */
     public function enqueue_admin_assets($hook) {
-        if ('settings_page_enhanced-admin-menu-editor' !== $hook) {
+        if ('settings_page_fixed-admin-menu-editor' !== $hook) {
             return;
         }
 
@@ -135,15 +142,18 @@ class Enhanced_Admin_Menu_Editor {
                 true
             );
 
+            // Get admin menu structure with unique IDs
+            $admin_menu = $this->get_admin_menu_structure();
+            
             // Pass data to script
             wp_localize_script('came-admin-js', 'came_data', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('came_nonce'),
                 'current_user_roles' => $this->get_current_user_roles(),
                 'dashicons' => $this->get_available_dashicons(),
-                'admin_menu' => $this->get_admin_menu_structure(),
+                'admin_menu' => $admin_menu,
                 'saved_menu' => isset($this->menu_settings['menu_items']) ? $this->menu_settings['menu_items'] : array(),
-                'text_confirm_reset' => __('Are you sure you want to reset the menu to default?', 'enhanced-admin-menu-editor')
+                'text_confirm_reset' => __('Are you sure you want to reset the menu to default?', 'fixed-admin-menu-editor')
             ));
         }
 
@@ -163,9 +173,9 @@ class Enhanced_Admin_Menu_Editor {
         } else {
             // Fallback if admin page file doesn't exist
             echo '<div class="wrap">';
-            echo '<h1>' . esc_html__('Admin Menu Editor', 'enhanced-admin-menu-editor') . '</h1>';
+            echo '<h1>' . esc_html__('Admin Menu Editor', 'fixed-admin-menu-editor') . '</h1>';
             echo '<div class="notice notice-error"><p>' . 
-                 esc_html__('Error: Admin page template file not found. Please reinstall the plugin.', 'enhanced-admin-menu-editor') . 
+                 esc_html__('Error: Admin page template file not found. Please reinstall the plugin.', 'fixed-admin-menu-editor') . 
                  '</p></div>';
             echo '</div>';
         }
@@ -231,7 +241,7 @@ class Enhanced_Admin_Menu_Editor {
     }
 
     /**
-     * Get original WordPress admin menu structure
+     * Get original WordPress admin menu structure with guaranteed unique IDs
      *
      * @return array Admin menu structure
      */
@@ -247,7 +257,7 @@ class Enhanced_Admin_Menu_Editor {
         
         if (!empty($original_menu) && is_array($original_menu)) {
             foreach ($original_menu as $menu_key => $menu_item) {
-                if (empty($menu_item[0])) {
+                if (empty($menu_item[0]) || empty($menu_item[2])) {
                     continue;
                 }
                 
@@ -255,8 +265,11 @@ class Enhanced_Admin_Menu_Editor {
                 $menu_name = preg_replace('/<span.*?>.*?<\/span>/i', '', $menu_item[0]);
                 $menu_name = trim(strip_tags($menu_name));
                 
+                // Create a guaranteed unique ID using URL and a random ID
+                $menu_id = 'menu-' . sanitize_key($menu_item[2]) . '-' . uniqid();
+                
                 $item = array(
-                    'id' => 'menu-' . sanitize_title($menu_name) . '-' . mt_rand(1000, 9999), // Add random suffix for uniqueness
+                    'id' => $menu_id,
                     'name' => $menu_name,
                     'url' => $menu_item[2],
                     'capability' => $menu_item[1],
@@ -268,13 +281,16 @@ class Enhanced_Admin_Menu_Editor {
                 // Add submenu items if they exist
                 if (isset($original_submenu[$menu_item[2]]) && is_array($original_submenu[$menu_item[2]])) {
                     foreach ($original_submenu[$menu_item[2]] as $submenu_key => $submenu_item) {
-                        if (empty($submenu_item[0])) continue;
+                        if (empty($submenu_item[0]) || empty($submenu_item[2])) continue;
                         
                         $submenu_name = preg_replace('/<span.*?>.*?<\/span>/i', '', $submenu_item[0]);
                         $submenu_name = trim(strip_tags($submenu_name));
                         
+                        // Create a guaranteed unique ID using parent URL, submenu URL and a random ID
+                        $submenu_id = 'submenu-' . sanitize_key($menu_item[2]) . '-' . sanitize_key($submenu_item[2]) . '-' . uniqid();
+                        
                         $item['submenu'][] = array(
-                            'id' => 'submenu-' . sanitize_title($submenu_name) . '-' . mt_rand(1000, 9999), // Add random suffix for uniqueness
+                            'id' => $submenu_id,
                             'name' => $submenu_name,
                             'url' => $submenu_item[2],
                             'capability' => $submenu_item[1],
@@ -294,6 +310,14 @@ class Enhanced_Admin_Menu_Editor {
      * Modify admin menu based on saved settings
      */
     public function modify_admin_menu() {
+        // Prevent duplicate processing
+        if ($this->menu_processed) {
+            return;
+        }
+        
+        // Mark as processed to prevent multiple calls
+        $this->menu_processed = true;
+        
         global $menu, $submenu;
         
         // Check if we have settings
@@ -373,6 +397,11 @@ class Enhanced_Admin_Menu_Editor {
             $menu[$new_menu_order] = $modified_item;
             $new_menu_order += 10;
             
+            // Clear existing submenu to prevent duplicates
+            if (isset($submenu[$item['url']])) {
+                $submenu[$item['url']] = array();
+            }
+            
             // Process submenu if it exists
             if (isset($item['submenu']) && !empty($item['submenu']) && isset($submenu_lookup[$item['url']])) {
                 // Create new submenu array if it doesn't exist
@@ -423,13 +452,13 @@ class Enhanced_Admin_Menu_Editor {
     public function ajax_save_menu() {
         // Check nonce for security
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'came_nonce')) {
-            wp_send_json_error(array('message' => __('Security check failed.', 'enhanced-admin-menu-editor')));
+            wp_send_json_error(array('message' => __('Security check failed.', 'fixed-admin-menu-editor')));
             return;
         }
         
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('You do not have sufficient permissions.', 'enhanced-admin-menu-editor')));
+            wp_send_json_error(array('message' => __('You do not have sufficient permissions.', 'fixed-admin-menu-editor')));
             return;
         }
         
@@ -442,7 +471,7 @@ class Enhanced_Admin_Menu_Editor {
         
         if (json_last_error() !== JSON_ERROR_NONE) {
             wp_send_json_error(array(
-                'message' => __('Invalid data format.', 'enhanced-admin-menu-editor') . ' ' . json_last_error_msg(),
+                'message' => __('Invalid data format.', 'fixed-admin-menu-editor') . ' ' . json_last_error_msg(),
                 'details' => json_last_error_msg()
             ));
             return;
@@ -456,7 +485,7 @@ class Enhanced_Admin_Menu_Editor {
         
         update_option('came_menu_settings', $this->menu_settings);
         
-        wp_send_json_success(array('message' => __('Menu settings saved successfully.', 'enhanced-admin-menu-editor')));
+        wp_send_json_success(array('message' => __('Menu settings saved successfully.', 'fixed-admin-menu-editor')));
     }
 
     /**
@@ -465,13 +494,13 @@ class Enhanced_Admin_Menu_Editor {
     public function ajax_reset_menu() {
         // Check nonce for security
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'came_nonce')) {
-            wp_send_json_error(array('message' => __('Security check failed.', 'enhanced-admin-menu-editor')));
+            wp_send_json_error(array('message' => __('Security check failed.', 'fixed-admin-menu-editor')));
             return;
         }
         
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => __('You do not have sufficient permissions.', 'enhanced-admin-menu-editor')));
+            wp_send_json_error(array('message' => __('You do not have sufficient permissions.', 'fixed-admin-menu-editor')));
             return;
         }
         
@@ -479,9 +508,9 @@ class Enhanced_Admin_Menu_Editor {
         delete_option('came_menu_settings');
         $this->menu_settings = array();
         
-        wp_send_json_success(array('message' => __('Menu settings reset successfully.', 'enhanced-admin-menu-editor')));
+        wp_send_json_success(array('message' => __('Menu settings reset successfully.', 'fixed-admin-menu-editor')));
     }
 }
 
 // Initialize the plugin
-add_action('plugins_loaded', array('Enhanced_Admin_Menu_Editor', 'get_instance'));
+add_action('plugins_loaded', array('Fixed_Admin_Menu_Editor', 'get_instance'));
