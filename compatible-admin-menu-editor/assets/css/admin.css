@@ -1,5 +1,5 @@
 /**
- * Enhanced Admin Menu Editor CSS
+ * Advanced Admin Menu Editor CSS
  */
 
 /* Admin Container */
@@ -17,17 +17,69 @@
 
 /* Admin Header */
 .came-admin-header {
-    padding: 0;
+    padding: 10px 15px;
     border-bottom: 1px solid #ccd0d4;
     background: #f8f9fa;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
+/* Select Menu Heading */
+.came-select-menu-heading {
+    margin: 0 0 10px 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+/* Configuration Selector */
+.came-config-selector {
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+    flex: 1;
+}
+
+.came-config-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#came-config-dropdown {
+    min-width: 200px;
+    margin-right: 10px;
+}
+
+.came-config-controls button {
+    margin-right: 5px;
+}
+
+.came-config-controls button:last-child {
+    margin-right: 0;
+}
+
+.came-config-controls .dashicons {
+    vertical-align: text-bottom;
+    margin-right: 2px;
+}
+
+.came-config-name-wrapper {
+    width: 100%;
+}
+
+#came-config-name {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Actions */
 .came-actions {
-    padding: 10px 15px;
-    border-right: 1px solid #ccd0d4;
+    display: flex;
+    align-items: center;
 }
 
 .came-actions button {
@@ -43,6 +95,7 @@
 .came-tabs {
     display: flex;
     margin: 0;
+    border-bottom: 1px solid #ccd0d4;
 }
 
 .came-tab {
@@ -164,10 +217,6 @@
     font-size: 12px;
 }
 
-.came-form-actions {
-    margin-top: 20px;
-}
-
 .came-item-info {
     background: #f8f9fa;
     padding: 10px;
@@ -183,6 +232,42 @@
 
 .came-item-type-info p {
     margin: 5px 0;
+}
+
+/* Item-specific Role Settings */
+.came-item-roles {
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.came-item-roles h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #23282d;
+}
+
+.came-item-roles-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-gap: 10px;
+    margin-top: 10px;
+}
+
+.came-item-role-option {
+    display: flex;
+    align-items: center;
+}
+
+.came-item-role-option label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+.came-item-role-option input[type="checkbox"] {
+    margin-right: 6px;
 }
 
 /* Menu Structure */
@@ -314,8 +399,8 @@
     border-radius: 3px;
 }
 
-/* Role Settings Tab */
-#came-tab-roles {
+/* Global Role Settings Tab */
+#came-tab-global-roles {
     padding: 20px;
 }
 
@@ -349,6 +434,13 @@
     margin-right: 8px;
 }
 
+.came-roles-notice {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f7fcfe;
+    border-left: 4px solid #00a0d2;
+}
+
 /* Admin Footer */
 .came-admin-footer {
     padding: 15px;
@@ -380,8 +472,94 @@
     color: #00a0d2;
 }
 
+/* Modal */
+.came-modal {
+    display: none;
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.came-modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 0;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    width: 500px;
+    max-width: 90%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    animation: cameModalOpen 0.3s;
+}
+
+@keyframes cameModalOpen {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.came-modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.came-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+.came-modal-close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    color: #666;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.came-modal-close:hover {
+    color: #0073aa;
+}
+
+.came-modal-body {
+    padding: 15px;
+}
+
+.came-modal-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+
+.came-modal-footer button {
+    margin-left: 10px;
+}
+
 /* Responsive Adjustments */
 @media screen and (max-width: 782px) {
+    .came-admin-header {
+        flex-direction: column;
+    }
+    
+    .came-config-selector {
+        margin-right: 0;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+    
+    .came-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
     .came-tab-content.active {
         flex-direction: column;
     }
@@ -395,18 +573,6 @@
         border-bottom: 1px solid #eee;
     }
     
-    .came-admin-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .came-actions {
-        padding: 10px;
-        border-right: none;
-        border-bottom: 1px solid #ccd0d4;
-        text-align: center;
-    }
-    
     .came-tabs {
         flex-wrap: wrap;
     }
@@ -415,5 +581,9 @@
         flex: 1;
         text-align: center;
         padding: 10px;
+    }
+    
+    .came-item-roles-list {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
 }
